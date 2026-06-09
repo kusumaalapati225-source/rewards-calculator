@@ -1,0 +1,18 @@
+package com.charter.rewards.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class RewardCalculation {
+
+    private Long customerId;
+    private String month;
+    private Long points;
+
+}
