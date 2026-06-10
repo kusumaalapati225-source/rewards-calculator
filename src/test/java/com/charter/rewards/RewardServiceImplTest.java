@@ -56,10 +56,10 @@ public class RewardServiceImplTest {
     }
 
     @Test
-    void shouldThrowCustomerNotFoundException(){
+    void shouldThrowCustomerNotFoundException() {
         when(customerRepository.findById(100L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(CustomerNotFoundException.class,() -> rewardService.getCustomerRewards(100L));
+        assertThrows(CustomerNotFoundException.class, () -> rewardService.getCustomerRewards(100L));
     }
 }

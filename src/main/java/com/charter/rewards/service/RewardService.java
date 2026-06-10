@@ -7,5 +7,6 @@ import java.util.List;
 public interface RewardService {
 
     CustomerRewardResponse getCustomerRewards(Long customerId);
+
     List<CustomerRewardResponse> getAllCustomerRewards();
 }

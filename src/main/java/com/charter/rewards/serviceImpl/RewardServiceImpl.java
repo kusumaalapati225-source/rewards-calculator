@@ -10,8 +10,10 @@ import com.charter.rewards.repository.TransactionRepository;
 import com.charter.rewards.service.RewardService;
 import com.charter.rewards.util.RewardCalculator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +26,17 @@ public class RewardServiceImpl implements RewardService {
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
 
+    @Value("${rewards.months}")
+    private int rewardMonths;
+
     @Override
     public CustomerRewardResponse getCustomerRewards(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(()-> new CustomerNotFoundException(customerId));
-        List<Transaction> transactions = transactionRepository.findByCustomerId(customerId);
-        return buildRewardsResponse(customer,transactions);
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+        LocalDate localDate = LocalDate.now().minusMonths(rewardMonths);
+        List<Transaction> transactions = transactionRepository.
+                findByCustomerIdAndTransactionDateGreaterThanEqual(customerId, localDate);
+        return buildRewardsResponse(customer, transactions);
     }
 
     @Override
@@ -38,17 +45,17 @@ public class RewardServiceImpl implements RewardService {
         return customers.stream()
                 .map(customer -> {
                     List<Transaction> transactions = transactionRepository.findByCustomerId(customer.getCustomerId());
-                    return buildRewardsResponse(customer,transactions);
+                    return buildRewardsResponse(customer, transactions);
                 }).collect(Collectors.toList());
     }
 
-    private CustomerRewardResponse buildRewardsResponse(Customer customer, List<Transaction> transactions){
-        Map<YearMonth , Long> monthlyReward = new TreeMap<>();
+    private CustomerRewardResponse buildRewardsResponse(Customer customer, List<Transaction> transactions) {
+        Map<YearMonth, Long> monthlyReward = new TreeMap<>();
         long totalRewards = 0;
-        for(Transaction transaction:transactions){
+        for (Transaction transaction : transactions) {
             long points = RewardCalculator.calculateRewardPoints(transaction.getAmount().longValue());
             YearMonth month = YearMonth.from(transaction.getTransactionDate());
-            monthlyReward.merge(month,points,Long::sum);
+            monthlyReward.merge(month, points, Long::sum);
             totalRewards += points;
         }
         List<MonthlyRewards> monthlyRewards = monthlyReward.entrySet().stream()

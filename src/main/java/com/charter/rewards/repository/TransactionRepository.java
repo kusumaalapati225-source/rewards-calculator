@@ -20,4 +20,6 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> {
             Long customerId,
             LocalDate startDate,
             LocalDate endDate);
+
+    List<Transaction> findByCustomerIdAndTransactionDateGreaterThanEqual(Long customerId, LocalDate startDate);
 }
