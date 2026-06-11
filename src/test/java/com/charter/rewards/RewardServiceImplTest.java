@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,12 +44,14 @@ public class RewardServiceImplTest {
                 .transactionId(1L)
                 .customerId(1L)
                 .amount(BigDecimal.valueOf(120))
-                .transactionDate(LocalDate.of(2025, 1, 10))
+                .transactionDate(LocalDate.now())
                 .build();
 
         when(customerRepository.findById(1L))
                 .thenReturn(Optional.of(customer));
-        when(transactionRepository.findByCustomerId(1L))
+        when(transactionRepository.findByCustomerIdAndTransactionDateGreaterThanEqual(
+                eq(1L),
+                any(LocalDate.class)))
                 .thenReturn(List.of(transaction));
         CustomerRewardResponse response = rewardService.getCustomerRewards(1L);
         assertNotNull(response);
